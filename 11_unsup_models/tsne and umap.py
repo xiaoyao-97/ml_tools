@@ -1,6 +1,6 @@
-很好的演示网站：https://pair-code.github.io/understanding-umap/
+# 很好的演示网站：https://pair-code.github.io/understanding-umap/
 
-——————————————————————tsne——————————————————————————————————
+# ——————————————————————tsne——————————————————————————————————
 from sklearn.manifold import TSNE
 
 def tsne_features(df, cols, n, random_state=42):
@@ -13,7 +13,7 @@ def tsne_features(df, cols, n, random_state=42):
 
 
 
-———————————————————————UMAP———————————————————————————————————
+# ———————————————————————UMAP———————————————————————————————————
 import umap
 from sklearn.preprocessing import StandardScaler
 
@@ -33,7 +33,7 @@ def umap_features(df, cols, n, random_state=42):
     return pd.concat([df, umap_df], axis=1)
 
 
-——————————————————————LDA————————————————————————————————
+# ——————————————————————LDA————————————————————————————————
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 def lda_features(df, cols, target_col, n):
