@@ -1,0 +1,11 @@
+"""
+ridge, 
+lasso, 
+elasticnet, 
+gbr,
+xgboost, 
+catboost,
+lightgbm,
+rfr,
+svr,
+"""
