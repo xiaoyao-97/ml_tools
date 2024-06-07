@@ -21,6 +21,13 @@ train test分别加interaction
 [done] 给regeme change以新的feature
 [done] 快速看residual的能力
 
+监控CPU
+练习一次建模
+[done] 平板上的GPT
+[done] GPT网站
+[done] 买吃的
+
+
 
 
 
