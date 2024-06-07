@@ -45,6 +45,53 @@ def rf_imp(df, cols):
         
     return df_copy
 
+# RF cols and feature_cols
+"""
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+
+def rf_imp(df, cols, feature_cols):
+    df_copy = df.copy()  # 复制原数据框
+    for col in cols:
+        missing_mask = df_copy[col].isnull()  # 找到缺失值掩码
+        
+        if missing_mask.sum() == 0:
+            continue  # 如果没有缺失值，跳过该列
+        
+        # 创建特征矩阵和目标变量
+        current_feature_cols = [c for c in feature_cols if c != col]
+        X_train = df_copy.loc[~missing_mask, current_feature_cols]
+        y_train = df_copy.loc[~missing_mask, col]
+        X_test = df_copy.loc[missing_mask, current_feature_cols]
+        
+        # 删除所有列中含有缺失值的行，但保留训练特征列
+        combined = pd.concat([X_train, y_train], axis=1).dropna(subset=current_feature_cols)
+        X_train = combined[current_feature_cols]
+        y_train = combined[col]
+        
+        # 构建和训练随机森林回归器
+        rf = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf.fit(X_train, y_train)
+        
+        # 确保预测时特征列的顺序与训练时一致
+        X_test = X_test[X_train.columns]
+        
+        # 预测缺失值
+        predicted_values = rf.predict(X_test)
+        
+        # 检查预测值的长度是否与缺失值的数量一致
+        if len(predicted_values) != missing_mask.sum():
+            raise ValueError(f"Predicted values length ({len(predicted_values)}) does not match missing values count ({missing_mask.sum()}).")
+        
+        # 将预测值转换为Series，并对齐到原数据框索引
+        predicted_series = pd.Series(predicted_values, index=df_copy.loc[missing_mask].index)
+        
+        # 填补缺失值
+        df_copy.loc[missing_mask, col] = predicted_series
+        
+    return df_copy
+"""
+
 # simpler RF
 scaler = StandardScaler()
 df_scaled = pd.DataFrame(scaler.fit_transform(df_missing), columns=df.columns)

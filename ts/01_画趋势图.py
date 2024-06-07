@@ -212,5 +212,71 @@ def plot_ts(df, time_col, cols, display_cols, point_size=5, line_size=2, fig_wid
     app.run_server(debug=True)
 """
 
+"""min-max画图并有rolling window
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+import plotly.graph_objs as go
+import pandas as pd
 
+def plot_ts(df, time_col, cols, point_size=5, line_size=2, fig_width=800, fig_height=600):
+    # 对所有列进行Min-Max归一化
+    df_normalized = df.copy()
+    for col in cols:
+        df_normalized[col] = (df[col] - df[col].min()) / (df[col].max() - df[col].min())
 
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div([
+        dcc.Graph(id='time-series-plot'),
+        dcc.Checklist(
+            id='series-checklist',
+            options=[{'label': col, 'value': col} for col in cols],
+            value=cols,
+            inline=True
+        )
+    ])
+
+    @app.callback(
+        Output('time-series-plot', 'figure'),
+        [Input('series-checklist', 'value')]
+    )
+    def update_figure(selected_series):
+        fig = go.Figure()
+
+        for i, col in enumerate(selected_series):
+            fig.add_trace(go.Scatter(
+                x=df[time_col], y=df_normalized[col], mode='lines+markers', name=col,
+                text=[f"{col}: {val:.2f}" for val in df[col]],  # 在悬停提示中显示原始值
+                hovertemplate='%{x}<br>%{text}<extra></extra>',
+                marker=dict(size=point_size), line=dict(width=line_size)
+            ))
+
+        fig.update_layout(
+            xaxis_title='Time', yaxis_title='Normalized Value', hovermode='x unified',
+            width=fig_width, height=fig_height,
+            title_text="Time series with range slider and selectors",
+            xaxis=dict(
+                rangeselector=dict(
+                    buttons=[
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(count=1, label="YTD", step="year", stepmode="todate"),
+                        dict(count=1, label="1y", step="year", stepmode="backward"),
+                        dict(step="all")
+                    ]
+                ),
+                rangeslider=dict(visible=True), type="date"
+            ),
+            yaxis=dict(range=[0, 1])  # 统一设置y轴范围为0到1
+        )
+
+        return fig
+
+    app.run_server(debug=True)
+
+# 示例调用
+# df = pd.read_csv('your_data.csv')
+# plot_ts(df, 'date_column', ['col1', 'col2', 'col3'])
+"""
