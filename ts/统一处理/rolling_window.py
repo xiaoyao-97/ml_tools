@@ -158,3 +158,64 @@ def weighted_rolling_window_lr_no_intercept(df, target, features, window_length,
     fig_residuals.show()
     
     return results
+
+
+
+"""最后的rolling window
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+def exp_decay_weights(length, halflife):
+    alpha = np.log(2) / halflife
+    return np.exp(-alpha * np.arange(length)[::-1])
+
+def weighted_rolling_window_lr(df, target, features, halflife, window, min_window):
+    # Initialize the output DataFrame
+    results = pd.DataFrame(index=df.index, columns=features + ['intercept', 'predicted_' + target], dtype=float)
+    
+    # Prepare the features and target arrays
+    X = df[features].values
+    y = df[target].values
+    
+    # Initialize an array to store the predicted values
+    predictions = np.full(len(df), np.nan)
+    
+    # Iterate through the dataset to compute rolling regression with exponential weights
+    for end in range(min_window, len(df)):
+        start = max(0, end - window)
+        window_data = df.iloc[start:end]
+        
+        # Calculate exponential decay weights
+        weights = exp_decay_weights(len(window_data), halflife)
+        weights /= weights.sum()
+        
+        # Fit the linear regression model using the weights
+        model = LinearRegression()
+        model.fit(window_data[features], window_data[target], sample_weight=weights)
+        
+        # Get the beta values and intercept
+        betas = model.coef_
+        intercept = model.intercept_
+        
+        # Predict the target for the current row
+        current_features = df.iloc[end][features].values
+        predicted_value = np.dot(current_features, betas) + intercept
+        predictions[end] = predicted_value
+        
+        # Store the results
+        results.iloc[end, :len(features)] = betas
+        results.iloc[end, -2] = intercept
+        results.iloc[end, -1] = predicted_value
+    
+    # Calculate metrics for the predictions
+    valid_indices = ~np.isnan(predictions)
+    rmse = mean_squared_error(y[valid_indices], predictions[valid_indices], squared=False)
+    variance = np.var(predictions[valid_indices])
+    r2 = r2_score(y[valid_indices], predictions[valid_indices])
+    print('R²:', r2)
+    print('RMSE:', rmse)
+    print('Variance:', variance)
+    
+    return results"""

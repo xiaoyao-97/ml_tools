@@ -280,3 +280,74 @@ def plot_ts(df, time_col, cols, point_size=5, line_size=2, fig_width=800, fig_he
 # df = pd.read_csv('your_data.csv')
 # plot_ts(df, 'date_column', ['col1', 'col2', 'col3'])
 """
+
+"""最基本的交互画图
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+import plotly.graph_objs as go
+import pandas as pd
+
+def plot_ts(df, time_col, cols, point_size=5, line_size=2, fig_width=800, fig_height=600):
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div([
+        dcc.Graph(id='time-series-plot'),
+        dcc.Checklist(
+            id='series-checklist',
+            options=[{'label': col, 'value': col} for col in cols],
+            value=cols,
+            inline=True
+        )
+    ])
+
+    @app.callback(
+        Output('time-series-plot', 'figure'),
+        [Input('series-checklist', 'value')]
+    )
+    def update_figure(selected_series):
+        fig = go.Figure()
+
+        for i, col in enumerate(selected_series):
+            fig.add_trace(go.Scatter(
+                x=df[time_col], y=df[col], mode='lines+markers', name=col,
+                text=[f"{col}: {val:.2f}" for val in df[col]],  # 在悬停提示中显示原始值
+                hovertemplate='%{x}<br>%{text}<extra></extra>',
+                marker=dict(size=point_size), line=dict(width=line_size)
+            ))
+
+        fig.update_layout(
+            xaxis_title='Time', yaxis_title='Value', hovermode='x unified',
+            width=fig_width, height=fig_height,
+            title_text="Time series with range slider and selectors",
+            xaxis=dict(
+                rangeselector=dict(
+                    buttons=[
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(count=1, label="YTD", step="year", stepmode="todate"),
+                        dict(count=1, label="1y", step="year", stepmode="backward"),
+                        dict(step="all")
+                    ]
+                ),
+                rangeslider=dict(visible=True), type="date"
+            )
+        )
+
+        return fig
+
+    app.run_server(debug=True)
+
+# 示例数据
+data = {
+    'time': pd.date_range(start='1/1/2020', periods=100, freq='D'),
+    'series1': range(100),
+    'series2': range(100, 200),
+    'series3': range(200, 300)
+}
+df = pd.DataFrame(data)
+
+plot_ts(df, 'time', ['series1', 'series2', 'series3'])
+"""
+
